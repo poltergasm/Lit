@@ -53,6 +53,27 @@ uint8_t l_cleanup(lit *lit)
     return 0;
 }
 
+void func_check(lit *lit)
+{
+	lit->can_update = false;
+	lit->can_draw = false;
+	lua_getglobal (lit->L, "_update");
+    if (lua_isfunction (lit->L, -1) == 1) lit->can_update = true;
+    lua_getglobal (lit->L, "_draw");
+    if (lua_isfunction (lit->L, -1) == 1) lit->can_draw = true;
+}
+
+void l_update(lit *lit, double dt)
+{
+	lua_getglobal(lit->L, "_update");
+	lua_pushnumber(lit->L, dt);
+	if (lua_pcall(lit->L, 1, 1, 0) != 0) {
+		fprintf(stderr, "Problem running _update: %s\n",
+			lua_tostring(lit->L, -1));
+		exit(1);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	lit lit; 
@@ -64,14 +85,30 @@ int main(int argc, char *argv[])
 	lwin.y = SDL_WINDOWPOS_CENTERED;
 	lwin.width = 800;
 	lwin.height = 600;
-	lwin.fullscreen = 0;
+	lwin.fullscreen = false;
 
 	l_init(&lit, &lwin);
+	func_check(&lit);
 
+	clock_t _t;
+	int t = 0;
+	double delta;
+	if (lit.can_update) { printf("We can update :)\n"); }
+	else { printf("Cannot update\n"); }
 	while (lit.running) {
 		lit_handle_events(&lit);
+
+		if (lit.can_update) {
+            for (t = 0; t < 60; t++) {
+                _t = clock();
+                l_update(&lit, delta);
+                _t = clock() - _t;
+                delta = ((double)_t)/CLOCKS_PER_SEC;
+            }
+        }
 	}
 
+	printf("We done here\n");
 	l_cleanup(&lit);
 	return 0;
 }

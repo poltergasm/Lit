@@ -7,7 +7,7 @@ void lit_handle_events(lit *lit)
     SDL_PollEvent(&event);
     switch(event.type) {
         case SDL_QUIT:
-            lit->running = 0;
+            lit->running = false;
             break;
 
         default:

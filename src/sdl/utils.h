@@ -4,7 +4,7 @@ typedef struct _window {
 	int y;
 	int width;
 	int height;
-	uint8_t fullscreen;
+	bool fullscreen;
 } l_window;
 
 void l_init(lit *lit, l_window *window)

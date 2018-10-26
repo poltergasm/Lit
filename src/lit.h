@@ -13,17 +13,22 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_Image.h"
 #include "luajit.h"
+#include <stdbool.h>
 #include "utils.h"
 
 typedef struct _lit {
 	lua_State *L;
 	char path[256];
-	uint8_t running;
+	bool running;
+	bool can_update;
+	bool can_draw;
 } lit;
 
 uint8_t load_lua(lit *lit);
 uint8_t load_main(lit *lit);
 uint8_t end_lua(lit *lit);
+void func_check(lit *lit);
+void l_update(lit *lit, double dt);
 
 void print(const char *fmt, ...);
 
