@@ -93,8 +93,7 @@ int main(int argc, char *argv[])
 	clock_t _t;
 	int t = 0;
 	double delta;
-	if (lit.can_update) { printf("We can update :)\n"); }
-	else { printf("Cannot update\n"); }
+	
 	while (lit.running) {
 		lit_handle_events(&lit);
 
