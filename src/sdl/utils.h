@@ -1,6 +1,18 @@
 
 void l_init()
 {
+	// include initial font
+	if (TTF_Init() == -1) {
+		fprintf(stderr, "TTF_Init: %s\n", TTF_GetError());
+		exit(2);
+	}
+	
+	lgfx.font = TTF_OpenFont("assets/font.ttf", 32);
+	if (lgfx.font == NULL) {
+		fprintf(stderr, "There was a problem opening the font: %s\n", TTF_GetError());
+		exit(3);
+	}
+
 	if (SDL_Init(SDL_INIT_VIDEO) == 0) {
 		int flags = 0;
 		if (lit.fullscreen)
@@ -34,7 +46,7 @@ void l_init()
 		lit.running = true;
 
 		// set the initial color
-		lit.current_color = col_black;
+		lgfx.current_color = col_black;
 		SDL_SetRenderDrawColor(lit.renderer, col_black.r, col_black.g, col_black.b, col_black.a);
 
 		if (lit.can_init) {

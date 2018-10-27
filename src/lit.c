@@ -20,8 +20,14 @@ uint8_t load_main()
 	lua_pushcfunction(lit.L, l_set_title);
 	lua_setglobal(lit.L, "_l_set_title");
 
+	lua_pushcfunction(lit.L, l_set_color);
+	lua_setglobal(lit.L, "_l_set_color");
+
 	lua_pushcfunction(lit.L, l_set_background);
 	lua_setglobal(lit.L, "_l_set_background");
+
+	lua_pushcfunction(lit.L, l_print);
+	lua_setglobal(lit.L, "_l_print");
 
 	uint8_t status = luaL_loadfile(lit.L, lit.path);
 	if (status != 0) {
@@ -66,6 +72,7 @@ uint8_t l_cleanup()
     SDL_DestroyWindow(lit.window);
     SDL_DestroyRenderer(lit.renderer);
     //textures_destroy(engine);
+    TTF_Quit();
     SDL_Quit();
     printf("Shutting down. All cleaned up.\n");
     return 0;

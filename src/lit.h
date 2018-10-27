@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -12,8 +13,8 @@
 #include <time.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_Image.h"
+#include "SDL2/SDL_ttf.h"
 #include "luajit.h"
-#include <stdbool.h>
 #include "utils.h"
 
 //colors
@@ -43,7 +44,6 @@ color_t col_white = {222, 238, 214, 255};
 
 typedef struct _lit {
 	lua_State *L;
-	color_t current_color;
 	char path[256];
 	bool running;
 	bool can_update;
@@ -53,6 +53,12 @@ typedef struct _lit {
 	SDL_Renderer *renderer;
 	SDL_Window *window;
 } Lit;
+
+typedef struct _graphics {
+	color_t current_color;
+	TTF_Font* font;
+	SDL_Color color;
+} l_graphics;
 
 typedef struct _window {
 	const char *title;
@@ -65,6 +71,7 @@ typedef struct _window {
 
 Lit lit;
 static l_window lwin;
+static l_graphics lgfx;
 
 uint8_t load_lua();
 uint8_t load_main();
