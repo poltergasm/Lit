@@ -10,7 +10,9 @@ _G.lit = { \
 	gfx = { \
 		set_bg = _l_set_background, \
 		set_color = _l_set_color, \
-		print = _l_print \
+		set_scale = _l_set_scale, \
+		print = _l_print, \
+		rect  = _l_rect \
 	}, \
 	timer = { \
 		get_time = _l_get_time \
@@ -60,7 +62,6 @@ static int l_set_background(lua_State *L)
 	int n = lua_tonumber(L, 1);
 	color_t c = get_color(n);
 	color_t old_color = lgfx.current_color;
-	printf("Setting background to %d, %d, %d\n", c.r, c.g, c.b);
 	SDL_SetRenderDrawColor(lit.renderer, c.r, c.g, c.b, c.a);
 	SDL_RenderClear(lit.renderer);
 	return 1;
@@ -111,4 +112,45 @@ static int l_get_time(lua_State *L)
 {
 	lua_pushnumber(L, (int)time(NULL));
 	return 1;
+}
+
+static int l_set_scale(lua_State *L)
+{
+	int sx = lua_tonumber(L, 1);
+	int sy = lua_tonumber(L, 2);
+
+	if (sx < 1) sx = 1;
+	if (sy < 1) sy = 1;
+	SDL_RenderSetScale(lit.renderer, sx, sy);
+	return 0;
+}
+
+static int l_rect(lua_State *L)
+{
+	int x = lua_tonumber(L, 1);
+	int y = lua_tonumber(L, 2);
+	int w = lua_tonumber(L, 3);
+	int h = lua_tonumber(L, 4);
+	int cn = lua_tonumber(L, 5);
+	int alpha = lua_tonumber(L, 6);
+
+	if (alpha == 0) alpha = 255;
+
+	SDL_Rect r;
+    r.x = x;
+    r.y = y;
+    r.w = w;
+    r.h = h;
+
+    color_t c = get_color(cn);
+    SDL_SetRenderDrawColor(lit.renderer,
+    	c.r, c.g, c.b, alpha);
+
+    SDL_RenderFillRect(lit.renderer, &r);
+
+    // set color back to what it was originally
+    SDL_SetRenderDrawColor(lit.renderer,
+    	lgfx.current_color.r, lgfx.current_color.g,
+    	lgfx.current_color.b, lgfx.current_color.a
+    );
 }

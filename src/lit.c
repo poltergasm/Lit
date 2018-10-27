@@ -23,11 +23,17 @@ uint8_t load_main()
 	lua_pushcfunction(lit.L, l_set_color);
 	lua_setglobal(lit.L, "_l_set_color");
 
+	lua_pushcfunction(lit.L, l_set_scale);
+	lua_setglobal(lit.L, "_l_set_scale");
+
 	lua_pushcfunction(lit.L, l_set_background);
 	lua_setglobal(lit.L, "_l_set_background");
 
 	lua_pushcfunction(lit.L, l_print);
 	lua_setglobal(lit.L, "_l_print");
+
+	lua_pushcfunction(lit.L, l_rect);
+	lua_setglobal(lit.L, "_l_rect");
 
 	lua_pushcfunction(lit.L, l_get_time);
 	lua_setglobal(lit.L, "_l_get_time");
@@ -75,6 +81,7 @@ uint8_t l_cleanup()
     SDL_DestroyWindow(lit.window);
     SDL_DestroyRenderer(lit.renderer);
     //textures_destroy(engine);
+    TTF_CloseFont(lgfx.font);
     TTF_Quit();
     SDL_Quit();
     printf("Shutting down. All cleaned up.\n");
@@ -140,7 +147,7 @@ int main(int argc, char *argv[])
 		frame_start = SDL_GetTicks();
 
 		lit_handle_events();
-		if (lit.can_update) l_update(delta)
+		if (lit.can_update) l_update(delta);
         if (lit.can_draw) l_render();
 
         frame_time = SDL_GetTicks() - frame_start;
