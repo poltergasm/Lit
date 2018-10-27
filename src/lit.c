@@ -20,11 +20,20 @@ uint8_t load_main()
 	lua_pushcfunction(lit.L, l_set_title);
 	lua_setglobal(lit.L, "_l_set_title");
 
+	lua_pushcfunction(lit.L, l_fullscreen);
+	lua_setglobal(lit.L, "_l_fullscreen");
+
 	lua_pushcfunction(lit.L, l_set_color);
 	lua_setglobal(lit.L, "_l_set_color");
 
 	lua_pushcfunction(lit.L, l_set_scale);
 	lua_setglobal(lit.L, "_l_set_scale");
+
+	lua_pushcfunction(lit.L, l_get_width);
+	lua_setglobal(lit.L, "_l_get_width");
+
+	lua_pushcfunction(lit.L, l_get_height);
+	lua_setglobal(lit.L, "_l_get_height");
 
 	lua_pushcfunction(lit.L, l_set_background);
 	lua_setglobal(lit.L, "_l_set_background");

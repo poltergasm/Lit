@@ -5,7 +5,10 @@ COL_CYAN=13;COL_YELLOW=14;COL_WHITE=15 \
 _G.lit = { \
 	win = { \
 		_ptr  = nil, \
-		set_title = _l_set_title \
+		set_title = _l_set_title, \
+		fullscreen = _l_fullscreen, \
+		get_width = _l_get_width, \
+		get_height = _l_get_height \
 	}, \
 	gfx = { \
 		set_bg = _l_set_background, \
@@ -153,4 +156,51 @@ static int l_rect(lua_State *L)
     	lgfx.current_color.r, lgfx.current_color.g,
     	lgfx.current_color.b, lgfx.current_color.a
     );
+
+    return 0;
+}
+
+static int l_get_width(lua_State *L)
+{
+	SDL_DisplayMode dm;
+	SDL_GetCurrentDisplayMode(0, &dm);
+
+	lua_pushnumber(L, dm.w);
+	return 1;
+}
+
+static int l_get_height(lua_State *L)
+{
+	SDL_DisplayMode dm;
+	SDL_GetCurrentDisplayMode(0, &dm);
+
+	lua_pushnumber(L, dm.h);
+	return 1;
+}
+
+static int l_fullscreen(lua_State *L)
+{
+	bool fs = lua_toboolean(L, 1);
+	int res;
+	if (fs) res = SDL_WINDOW_FULLSCREEN_DESKTOP;
+	else res = 0;
+
+	SDL_SetWindowFullscreen(lit.window, res);
+
+	// scale shit accordingly
+	if (fs && !lit.fullscreen) {
+		/*SDL_DisplayMode dm;
+		SDL_GetCurrentDisplayMode(0, &dm);
+		float sx = dm.w / 800;
+		float sy = dm.h / 600;
+		SDL_RenderSetScale(lit.renderer, sx, sy);*/
+		lit.fullscreen = true;
+	}
+
+	if (!fs && lit.fullscreen) {
+
+		lit.fullscreen = false;
+	}
+
+	return 0;
 }
