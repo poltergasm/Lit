@@ -29,6 +29,9 @@ uint8_t load_main()
 	lua_pushcfunction(lit.L, l_print);
 	lua_setglobal(lit.L, "_l_print");
 
+	lua_pushcfunction(lit.L, l_get_time);
+	lua_setglobal(lit.L, "_l_get_time");
+
 	uint8_t status = luaL_loadfile(lit.L, lit.path);
 	if (status != 0) {
 		switch(status) {
@@ -125,25 +128,25 @@ int main(int argc, char *argv[])
 
 	l_init();
 
-	/*clock_t _t;
-	int t = 0;*/
+	// frame shit
+	const int FPS = 60;
+	const int frame_delay = 1000 / FPS;
+	uint32_t frame_start;
+	int frame_time;
+
 	double delta;
 
 	while (lit.running) {
+		frame_start = SDL_GetTicks();
+
 		lit_handle_events();
+		if (lit.can_update) l_update(delta)
+        if (lit.can_draw) l_render();
 
-		if (lit.can_update) {
-            //for (t = 0; t < 60; t++) {
-            //    _t = clock();
-                l_update(delta);
-            //    _t = clock() - _t;
-            //    delta = ((double)_t)/CLOCKS_PER_SEC;
-            //}
-        }
-
-        if (lit.can_draw) {
-        	l_render();
-        }
+        frame_time = SDL_GetTicks() - frame_start;
+    	if (frame_delay > frame_time) {
+    		SDL_Delay(frame_delay - frame_time);
+    	}
 	}
 
 	l_cleanup();

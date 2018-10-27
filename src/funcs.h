@@ -11,6 +11,9 @@ _G.lit = { \
 		set_bg = _l_set_background, \
 		set_color = _l_set_color, \
 		print = _l_print \
+	}, \
+	timer = { \
+		get_time = _l_get_time \
 	} \
 }";
 
@@ -102,4 +105,10 @@ static int l_print(lua_State *L)
 	SDL_DestroyTexture(message);
 	SDL_FreeSurface(surfaceMessage);
 	return 0;
+}
+
+static int l_get_time(lua_State *L)
+{
+	lua_pushnumber(L, (int)time(NULL));
+	return 1;
 }
