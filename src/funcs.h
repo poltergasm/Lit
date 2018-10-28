@@ -16,6 +16,7 @@ _G.lit = { \
 		set_scale = _l_set_scale, \
 		print = _l_print, \
 		image = _l_image, \
+		image_flip_x = _l_image_flip_x, \
 		draw  = _l_draw, \
 		rect  = _l_rect \
 	}, \
@@ -202,9 +203,6 @@ static int l_image(lua_State *L)
 		exit(1);
 	}
 
-	/*texture_t tex;
-	tex.texture = img;
-	tex.magic = "It's magic :-)";*/
 	l_textures[NUM_TEXTURES] = img;
 	NUM_TEXTURES++;
 	lua_pushnumber(L, NUM_TEXTURES-1);

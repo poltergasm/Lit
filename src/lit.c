@@ -29,6 +29,9 @@ uint8_t load_main()
 	lua_pushcfunction(lit.L, l_image);
 	lua_setglobal(lit.L, "_l_image");
 
+	lua_pushcfunction(lit.L, l_image_flip_x);
+	lua_setglobal(lit.L, "_l_image_flip_x");
+
 	lua_pushcfunction(lit.L, l_draw);
 	lua_setglobal(lit.L, "_l_draw");
 
@@ -141,7 +144,10 @@ void leval(const char *expr)
 	 lua_pushfstring(lit.L, "%s", expr);
 	 luaL_loadstring(lit.L, lua_tostring(lit.L,-1));
 	 lua_remove(lit.L,-2);
-	 lua_pcall(lit.L,0,1,0);
+	 if (lua_pcall(lit.L,0,1,0) != 0) {
+	 	fprintf(stderr, "Lua error: %s\n", lua_tostring(lit.L, -1));
+	 	exit(1);
+	 }
 }
 
 int main(int argc, char *argv[])

@@ -9,6 +9,7 @@ function _init()
 	--lit.win.fullscreen(true)
 	player.sprite = lit.gfx.image("assets/player.png")
 	enemy.sprite  = lit.gfx.image("assets/goomba.png")
+	enemy.sprite_flipped = lit.gfx.image_flip_x(enemy.sprite)
 end
 
 function _update(dt)
