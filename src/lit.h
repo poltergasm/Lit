@@ -69,6 +69,17 @@ typedef struct _window {
 	bool fullscreen;
 } l_window;
 
+typedef struct _texture {
+	SDL_Texture *texture;
+    SDL_Rect rect;
+    int width;
+    int height;
+    const char *magic;
+} texture_t;
+
+int NUM_TEXTURES = 0;
+SDL_Texture *l_textures[256] = {NULL};
+
 Lit lit;
 static l_window lwin;
 static l_graphics lgfx;
@@ -76,7 +87,7 @@ static l_graphics lgfx;
 uint8_t load_lua();
 uint8_t load_main();
 uint8_t end_lua();
-void l_update(double dt);
+void l_update(int dt);
 static int l_set_title(lua_State *L);
 void print(const char *fmt, ...);
 

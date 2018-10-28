@@ -15,6 +15,8 @@ _G.lit = { \
 		set_color = _l_set_color, \
 		set_scale = _l_set_scale, \
 		print = _l_print, \
+		image = _l_image, \
+		draw  = _l_draw, \
 		rect  = _l_rect \
 	}, \
 	timer = { \
@@ -162,20 +164,70 @@ static int l_rect(lua_State *L)
 
 static int l_get_width(lua_State *L)
 {
-	SDL_DisplayMode dm;
-	SDL_GetCurrentDisplayMode(0, &dm);
+	int w, h;
+	SDL_GetWindowSize(lit.window, &w, &h);
 
-	lua_pushnumber(L, dm.w);
+	lua_pushnumber(L, w);
 	return 1;
 }
 
 static int l_get_height(lua_State *L)
 {
-	SDL_DisplayMode dm;
-	SDL_GetCurrentDisplayMode(0, &dm);
+	int w, h;
+	SDL_GetWindowSize(lit.window, &w, &h);
 
-	lua_pushnumber(L, dm.h);
+	lua_pushnumber(L, h);
 	return 1;
+}
+
+static int l_image(lua_State *L)
+{
+	const char *path = lua_tostring(L, 1);
+	
+
+	SDL_Texture *img = NULL;
+	char fpath[256+sizeof(path)+3];
+	char cwpath[256];
+	if (getcwd(cwpath, sizeof(cwpath)) == NULL) {
+		fprintf(stderr, "Unable to determine current working directory\n");
+		exit(1);
+	}
+
+	strcpy(fpath, cwpath);
+	strcat(fpath, "\\");
+	strcat(fpath, path);
+	img = IMG_LoadTexture(lit.renderer, fpath);
+	if (img == NULL) {
+		fprintf(stderr, "Failed to load texture: %s\n", SDL_GetError());
+		exit(1);
+	}
+
+	/*texture_t tex;
+	tex.texture = img;
+	tex.magic = "It's magic :-)";*/
+	l_textures[NUM_TEXTURES] = img;
+	NUM_TEXTURES++;
+	lua_pushnumber(L, NUM_TEXTURES-1);
+	return 1;
+}
+
+static int l_draw(lua_State *L)
+{
+	int ti = lua_tonumber(L, 1);
+	int x = lua_tonumber(L, 2);
+	int y = lua_tonumber(L, 3);
+	//texture_t textr = l_textures[ti];
+	SDL_Texture *txtr = l_textures[ti];
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	SDL_QueryTexture(txtr, NULL, NULL, &rect.w, &rect.h);
+	if (SDL_RenderCopy(lit.renderer, txtr, NULL, &rect) != 0) {
+		fprintf(stderr, "Unable to render texture: %s\n", SDL_GetError());
+		exit(1);
+	}
+
+	return 0;
 }
 
 static int l_fullscreen(lua_State *L)

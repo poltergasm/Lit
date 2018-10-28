@@ -14,6 +14,11 @@ void l_init()
 	}
 
 	if (SDL_Init(SDL_INIT_VIDEO) == 0) {
+		if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
+			fprintf(stderr, "Failed to initialise SDL_Image\n");
+			exit(4);
+		}
+
 		int flags = 0;
 		if (lit.fullscreen)
 			flags = SDL_WINDOW_FULLSCREEN;
@@ -33,6 +38,7 @@ void l_init()
 			
 			if (lit.renderer != NULL) {
 				SDL_SetRenderDrawColor(lit.renderer, 0, 0, 0, 255);
+				SDL_SetRenderDrawBlendMode(lit.renderer, SDL_BLENDMODE_BLEND);
 			} else {
 				perror("Failed to create renderer");
 				exit(1);
