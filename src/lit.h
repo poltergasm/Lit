@@ -82,6 +82,10 @@ Lit lit;
 static l_window lwin;
 static l_graphics lgfx;
 
+int key_pressed = -1;
+
+int isPressing[6] = { 0 };
+
 uint8_t load_lua();
 uint8_t load_main();
 uint8_t end_lua();

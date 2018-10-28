@@ -1,8 +1,7 @@
-local t_tick  = 0
-local counter = 500
-local txt
 local player = {x=60, y=200}
 local enemy  = {x=120, y=200}
+local txt    = "My shitty little game"
+local counter = 0
 
 function _init()
 	lit.win.set_title("Lit Demo")
@@ -13,17 +12,24 @@ function _init()
 end
 
 function _update(dt)
-	local gt = lit.timer.get_time()
-	if gt > t_tick+0.5 and counter > 0 then
-		t_tick = lit.timer.get_time()
-		counter = counter - 1
-		txt = "Timer: " .. counter
+	if lit.input.btn(KEY_LEFT) then
+		player.x = player.x - 1
+	end
+
+	if lit.input.btn(KEY_RIGHT) then
+		player.x = player.x + 1
+	end
+
+	-- use btnp to only trigger on key ups
+	if lit.input.btnp(KEY_X) then
+		counter = counter + 1
 	end
 end
 
 function _draw()
 	-- a random rect, because fuck you that's why
 	lit.gfx.rect(lit.win.get_width() - 100, 0, 100, 90, COL_DARK_RED)
+	lit.gfx.print(counter, lit.win.get_width() - 50, 40, COL_WHITE)
 
 	-- draw the hud background
 	lit.gfx.rect(0, 0, lit.win.get_width(), 40, COL_DARK_GRAY, 150)

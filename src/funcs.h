@@ -2,6 +2,7 @@ const char *lua_win = "COL_BLACK=0;COL_DARK_RED=1;COL_DARK_BLUE=2 \
 COL_DARK_GRAY=3;COL_BROWN=4;COL_DARK_GREEN=5;COL_RED=6;COL_LIGHT_GRAY=7 \
 COL_LIGHT_BLUE=8;COL_ORANGE=9;COL_BLUE_GRAY=10;COL_LIGHT_GREEN=11;COL_PEACH=12 \
 COL_CYAN=13;COL_YELLOW=14;COL_WHITE=15 \
+KEY_RIGHT=0;KEY_LEFT=1;KEY_UP=2;KEY_DOWN=3;KEY_X=4;KEY_Z=5 \
 _G.lit = { \
 	win = { \
 		_ptr  = nil, \
@@ -19,6 +20,10 @@ _G.lit = { \
 		image_flip_x = _l_image_flip_x, \
 		draw  = _l_draw, \
 		rect  = _l_rect \
+	}, \
+	input = { \
+		btn = _l_btn, \
+		btnp = _l_btnp \
 	}, \
 	timer = { \
 		get_time = _l_get_time \
@@ -207,7 +212,6 @@ char* get_full_path(const char *path)
 	strcpy(fpath, cwpath);
 	strcat(fpath, "\\");
 	strcat(fpath, path);
-	printf("%s\n", fpath);
 	return fpath;
 }
 
@@ -288,4 +292,22 @@ static int l_fullscreen(lua_State *L)
 	}
 
 	return 0;
+}
+
+static int l_btn(lua_State *L)
+{
+	unsigned int k = lua_tonumber(L, 1);
+	if (isPressing[k] == 1) lua_pushboolean(L, 1);
+	else lua_pushboolean(L, 0);
+
+	return 1;
+}
+
+static int l_btnp(lua_State *L)
+{
+	unsigned int k = lua_tonumber(L, 1);
+	if (key_pressed == k) lua_pushboolean(L, 1);
+	else lua_pushboolean(L, 0);
+
+	return 1;
 }

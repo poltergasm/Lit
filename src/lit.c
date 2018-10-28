@@ -56,6 +56,12 @@ uint8_t load_main()
 	lua_pushcfunction(lit.L, l_get_time);
 	lua_setglobal(lit.L, "_l_get_time");
 
+	lua_pushcfunction(lit.L, l_btn);
+	lua_setglobal(lit.L, "_l_btn");
+
+	lua_pushcfunction(lit.L, l_btnp);
+	lua_setglobal(lit.L, "_l_btnp");
+
 	uint8_t status = luaL_loadfile(lit.L, lit.path);
 	if (status != 0) {
 		switch(status) {
@@ -175,6 +181,7 @@ int main(int argc, char *argv[])
 	while (lit.running) {
 		frame_start = SDL_GetTicks();
 
+		key_pressed = -1;
 		lit_handle_events();
 		if (lit.can_update) l_update(frame_time);
         if (lit.can_draw) l_render();
