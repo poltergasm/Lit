@@ -71,14 +71,12 @@ typedef struct _window {
 
 typedef struct _texture {
 	SDL_Texture *texture;
-    SDL_Rect rect;
-    int width;
-    int height;
-    const char *magic;
+    bool flipped;
+    const char *path;
 } texture_t;
 
 int NUM_TEXTURES = 0;
-SDL_Texture *l_textures[256] = {NULL};
+texture_t l_textures[256] = {NULL};
 
 Lit lit;
 static l_window lwin;

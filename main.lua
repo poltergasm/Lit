@@ -36,5 +36,6 @@ function _draw()
 	lit.gfx.draw(player.sprite, player.x, player.y)
 
 	-- draw another sprite
-	lit.gfx.draw(enemy.sprite, enemy.x, enemy.y)
+	lit.gfx.draw(enemy.sprite, enemy.x+120, enemy.y)
+	lit.gfx.draw(enemy.sprite_flipped, enemy.x, enemy.y)
 end

@@ -102,8 +102,8 @@ uint8_t l_cleanup()
     // cleanup textures
     uint8_t i;
     for (i = 0; i < NUM_TEXTURES; i++) {
-    	if (l_textures[i] != NULL) {
-    		SDL_DestroyTexture(l_textures[i]);
+    	if (l_textures[i].texture != NULL) {
+    		SDL_DestroyTexture(l_textures[i].texture);
     	}
     }
 

@@ -181,13 +181,23 @@ static int l_get_height(lua_State *L)
 	return 1;
 }
 
-static int l_image(lua_State *L)
+texture_t l_sdl_image(const char *path, bool flipped)
 {
-	const char *path = lua_tostring(L, 1);
-	
-
 	SDL_Texture *img = NULL;
-	char fpath[256+sizeof(path)+3];
+	img = IMG_LoadTexture(lit.renderer, path);
+	if (img == NULL) {
+		fprintf(stderr, "Failed to load texture: %s\n", SDL_GetError());
+		exit(1);
+	}
+
+	texture_t newtext = { img, false };
+	return newtext;
+}
+
+char* get_full_path(const char *path)
+{
+	char *fpath = malloc(sizeof(char)*270);
+	//char fpath[256+sizeof(path)+3];
 	char cwpath[256];
 	if (getcwd(cwpath, sizeof(cwpath)) == NULL) {
 		fprintf(stderr, "Unable to determine current working directory\n");
@@ -197,16 +207,48 @@ static int l_image(lua_State *L)
 	strcpy(fpath, cwpath);
 	strcat(fpath, "\\");
 	strcat(fpath, path);
-	img = IMG_LoadTexture(lit.renderer, fpath);
-	if (img == NULL) {
-		fprintf(stderr, "Failed to load texture: %s\n", SDL_GetError());
-		exit(1);
-	}
+	printf("%s\n", fpath);
+	return fpath;
+}
 
-	l_textures[NUM_TEXTURES] = img;
+static int l_image(lua_State *L)
+{
+	const char *path = lua_tostring(L, 1);
+	
+	char *fpath = get_full_path(path);
+	l_textures[NUM_TEXTURES] = l_sdl_image(fpath, false);
+	NUM_TEXTURES++;
+	lua_pushnumber(L, NUM_TEXTURES-1);
+	free(fpath);
+	return 1;
+}
+
+static int l_image_flip_x(lua_State *L)
+{
+	int idx = lua_tonumber(L, 1);
+	texture_t newtext = l_textures[idx];
+	newtext.flipped = true;
+	l_textures[NUM_TEXTURES] = newtext;
 	NUM_TEXTURES++;
 	lua_pushnumber(L, NUM_TEXTURES-1);
 	return 1;
+}
+
+void l_sdl_draw(texture_t *txt, int x, int y)
+{
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	SDL_QueryTexture(txt->texture, NULL, NULL, &rect.w, &rect.h);
+
+	if (txt->flipped) {
+		SDL_RenderCopyEx(lit.renderer, txt->texture, NULL, &rect, 0, NULL, SDL_FLIP_HORIZONTAL);
+	} else {
+		if (SDL_RenderCopy(lit.renderer, txt->texture, NULL, &rect) != 0) {
+			fprintf(stderr, "Unable to render texture: %s\n", SDL_GetError());
+			exit(1);
+		}
+	}
 }
 
 static int l_draw(lua_State *L)
@@ -214,16 +256,9 @@ static int l_draw(lua_State *L)
 	int ti = lua_tonumber(L, 1);
 	int x = lua_tonumber(L, 2);
 	int y = lua_tonumber(L, 3);
-	//texture_t textr = l_textures[ti];
-	SDL_Texture *txtr = l_textures[ti];
-	SDL_Rect rect;
-	rect.x = x;
-	rect.y = y;
-	SDL_QueryTexture(txtr, NULL, NULL, &rect.w, &rect.h);
-	if (SDL_RenderCopy(lit.renderer, txtr, NULL, &rect) != 0) {
-		fprintf(stderr, "Unable to render texture: %s\n", SDL_GetError());
-		exit(1);
-	}
+	texture_t txtr = l_textures[ti];
+	
+	l_sdl_draw(&txtr, x, y);
 
 	return 0;
 }
