@@ -75,15 +75,20 @@ typedef struct _texture {
     const char *path;
 } texture_t;
 
-int NUM_TEXTURES = 0;
+typedef struct _quad {
+	SDL_Rect rect;
+} l_quad_t;
+
+int NUM_TEXTURES = 1;
+int NUM_QUADS = 1;
 texture_t l_textures[256] = {NULL};
+l_quad_t l_quads[256];
 
 Lit lit;
 static l_window lwin;
 static l_graphics lgfx;
 
 int key_pressed = -1;
-
 int isPressing[6] = { 0 };
 
 uint8_t load_lua();

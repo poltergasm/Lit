@@ -2,10 +2,9 @@ const char *lua_win = "COL_BLACK=0;COL_DARK_RED=1;COL_DARK_BLUE=2 \
 COL_DARK_GRAY=3;COL_BROWN=4;COL_DARK_GREEN=5;COL_RED=6;COL_LIGHT_GRAY=7 \
 COL_LIGHT_BLUE=8;COL_ORANGE=9;COL_BLUE_GRAY=10;COL_LIGHT_GREEN=11;COL_PEACH=12 \
 COL_CYAN=13;COL_YELLOW=14;COL_WHITE=15 \
-KEY_RIGHT=0;KEY_LEFT=1;KEY_UP=2;KEY_DOWN=3;KEY_X=4;KEY_Z=5 \
-_G.lit = { \
+KEY_RIGHT=0;KEY_LEFT=1;KEY_UP=2;KEY_DOWN=3;KEY_X=4;KEY_Z=5";
+/*_G.lit = { \
 	win = { \
-		_ptr  = nil, \
 		set_title = _l_set_title, \
 		fullscreen = _l_fullscreen, \
 		get_width = _l_get_width, \
@@ -19,7 +18,8 @@ _G.lit = { \
 		image = _l_image, \
 		image_flip_x = _l_image_flip_x, \
 		draw  = _l_draw, \
-		rect  = _l_rect \
+		rect  = _l_rect, \
+		quad = _l_quad \
 	}, \
 	input = { \
 		btn = _l_btn, \
@@ -28,7 +28,7 @@ _G.lit = { \
 	timer = { \
 		get_time = _l_get_time \
 	} \
-}";
+}";*/
 
 color_t get_color(int n)
 {
@@ -227,6 +227,25 @@ static int l_image(lua_State *L)
 	return 1;
 }
 
+static int l_quad(lua_State *L)
+{
+	int xoff = lua_tonumber(L, 2);
+	int yoff = lua_tonumber(L, 3);
+	int h = lua_tonumber(L, 4);
+	int w = lua_tonumber(L, 5);
+
+	SDL_Rect rect;
+	rect.x = xoff;
+	rect.y = yoff;
+	rect.w = w;
+	rect.h = h;
+	l_quad_t newquad = { rect };
+	l_quads[NUM_QUADS] = newquad;
+	NUM_QUADS++;
+	lua_pushnumber(L, NUM_QUADS-1);
+	return 1;
+}
+
 static int l_image_flip_x(lua_State *L)
 {
 	int idx = lua_tonumber(L, 1);
@@ -238,19 +257,34 @@ static int l_image_flip_x(lua_State *L)
 	return 1;
 }
 
-void l_sdl_draw(texture_t *txt, int x, int y)
+void l_sdl_draw(texture_t *txt, int x, int y, int qn)
 {
 	SDL_Rect rect;
 	rect.x = x;
 	rect.y = y;
+	SDL_Rect quad;
+	if (qn > 0) {
+		l_quad_t quad_ = l_quads[qn];
+		quad.x = quad_.rect.x;
+		quad.y = quad_.rect.y;
+		quad.w = quad_.rect.w;
+		quad.h = quad_.rect.h;
+	}
 	SDL_QueryTexture(txt->texture, NULL, NULL, &rect.w, &rect.h);
 
 	if (txt->flipped) {
 		SDL_RenderCopyEx(lit.renderer, txt->texture, NULL, &rect, 0, NULL, SDL_FLIP_HORIZONTAL);
 	} else {
-		if (SDL_RenderCopy(lit.renderer, txt->texture, NULL, &rect) != 0) {
-			fprintf(stderr, "Unable to render texture: %s\n", SDL_GetError());
-			exit(1);
+		if (qn > 0) {
+			if (SDL_RenderCopy(lit.renderer, txt->texture, &quad, &rect) != 0) {
+				fprintf(stderr, "Unable to render texture: %s\n", SDL_GetError());
+				exit(1);
+			}
+		} else {
+			if (SDL_RenderCopy(lit.renderer, txt->texture, NULL, &rect) != 0) {
+				fprintf(stderr, "Unable to render texture: %s\n", SDL_GetError());
+				exit(1);
+			}
 		}
 	}
 }
@@ -260,9 +294,10 @@ static int l_draw(lua_State *L)
 	int ti = lua_tonumber(L, 1);
 	int x = lua_tonumber(L, 2);
 	int y = lua_tonumber(L, 3);
+	int quad = lua_tonumber(L, 4);
 	texture_t txtr = l_textures[ti];
-	
-	l_sdl_draw(&txtr, x, y);
+
+	l_sdl_draw(&txtr, x, y, quad);
 
 	return 0;
 }

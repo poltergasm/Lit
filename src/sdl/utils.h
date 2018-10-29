@@ -54,14 +54,6 @@ void l_init()
 		// set the initial color
 		lgfx.current_color = col_black;
 		SDL_SetRenderDrawColor(lit.renderer, col_black.r, col_black.g, col_black.b, col_black.a);
-
-		if (lit.can_init) {
-			lua_getglobal (lit.L, "_init");
-			if (lua_pcall(lit.L, 0, 1, 0) != 0) {
-				fprintf(stderr, "Problem calling _init: %s\n", lua_tostring(lit.L, -1));
-				exit(1);
-			}
-		}
 	}
 }
 

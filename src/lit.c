@@ -3,6 +3,59 @@
 #include "sdl/events.h"
 #include "sdl/utils.h"
 
+void register_functions()
+{
+	//lua_createtable(lit.L, 3, 0);
+
+	lua_pushcfunction(lit.L, l_fullscreen);
+	lua_setglobal(lit.L, "set_fullscreen");
+
+	lua_pushcfunction(lit.L, l_set_title);
+	lua_setglobal(lit.L, "set_title");
+
+	lua_pushcfunction(lit.L, l_set_color);
+	lua_setglobal(lit.L, "set_color");
+
+	lua_pushcfunction(lit.L, l_image);
+	lua_setglobal(lit.L, "image");
+
+	lua_pushcfunction(lit.L, l_quad);
+	lua_setglobal(lit.L, "quad");
+
+	lua_pushcfunction(lit.L, l_image_flip_x);
+	lua_setglobal(lit.L, "flip_x");
+
+	lua_pushcfunction(lit.L, l_draw);
+	lua_setglobal(lit.L, "draw");
+
+	lua_pushcfunction(lit.L, l_set_scale);
+	lua_setglobal(lit.L, "set_scale");
+
+	lua_pushcfunction(lit.L, l_set_background);
+	lua_setglobal(lit.L, "set_bg");
+
+	lua_pushcfunction(lit.L, l_print);
+	lua_setglobal(lit.L, "print");
+
+	lua_pushcfunction(lit.L, l_rect);
+	lua_setglobal(lit.L, "rect");
+
+	lua_pushcfunction(lit.L, l_get_time);
+	lua_setglobal(lit.L, "get_time");
+
+	lua_pushcfunction(lit.L, l_btn);
+	lua_setglobal(lit.L, "btn");
+
+	lua_pushcfunction(lit.L, l_btnp);
+	lua_setglobal(lit.L, "btnp");
+
+	lua_pushcfunction(lit.L, l_get_width);
+	lua_setglobal(lit.L, "get_width");
+
+	lua_pushcfunction(lit.L, l_get_height);
+	lua_setglobal(lit.L, "get_height");
+}
+
 uint8_t load_main()
 {
 	if (getcwd(lit.path, sizeof(lit.path)) == NULL)
@@ -16,53 +69,9 @@ uint8_t load_main()
 	lwin.width = 800;
 	lwin.height = 600;
 	lwin.fullscreen = false;
-
-	lua_pushcfunction(lit.L, l_set_title);
-	lua_setglobal(lit.L, "_l_set_title");
-
-	lua_pushcfunction(lit.L, l_fullscreen);
-	lua_setglobal(lit.L, "_l_fullscreen");
-
-	lua_pushcfunction(lit.L, l_set_color);
-	lua_setglobal(lit.L, "_l_set_color");
-
-	lua_pushcfunction(lit.L, l_image);
-	lua_setglobal(lit.L, "_l_image");
-
-	lua_pushcfunction(lit.L, l_image_flip_x);
-	lua_setglobal(lit.L, "_l_image_flip_x");
-
-	lua_pushcfunction(lit.L, l_draw);
-	lua_setglobal(lit.L, "_l_draw");
-
-	lua_pushcfunction(lit.L, l_set_scale);
-	lua_setglobal(lit.L, "_l_set_scale");
-
-	lua_pushcfunction(lit.L, l_get_width);
-	lua_setglobal(lit.L, "_l_get_width");
-
-	lua_pushcfunction(lit.L, l_get_height);
-	lua_setglobal(lit.L, "_l_get_height");
-
-	lua_pushcfunction(lit.L, l_set_background);
-	lua_setglobal(lit.L, "_l_set_background");
-
-	lua_pushcfunction(lit.L, l_print);
-	lua_setglobal(lit.L, "_l_print");
-
-	lua_pushcfunction(lit.L, l_rect);
-	lua_setglobal(lit.L, "_l_rect");
-
-	lua_pushcfunction(lit.L, l_get_time);
-	lua_setglobal(lit.L, "_l_get_time");
-
-	lua_pushcfunction(lit.L, l_btn);
-	lua_setglobal(lit.L, "_l_btn");
-
-	lua_pushcfunction(lit.L, l_btnp);
-	lua_setglobal(lit.L, "_l_btnp");
-
-	uint8_t status = luaL_loadfile(lit.L, lit.path);
+	l_init();
+	register_functions();
+	int status = luaL_loadfile(lit.L, lit.path);
 	if (status != 0) {
 		switch(status) {
 			case 7:
@@ -76,9 +85,9 @@ uint8_t load_main()
 		return 1;
 	}
 
-	uint8_t ret = lua_pcall(lit.L, 0, 0, 0);
+	int ret = lua_pcall(lit.L, 0, 0, 0);
 	if (ret != 0) {
-		perror(lua_tostring(lit.L, -1));
+		fprintf(stderr, "Problem running lua: %s\n", lua_tostring(lit.L, -1));
 		return 1;
 	}
 
@@ -158,6 +167,7 @@ void leval(const char *expr)
 
 int main(int argc, char *argv[])
 {
+
 	load_lua();
 
 	func_check();
@@ -167,11 +177,16 @@ int main(int argc, char *argv[])
 	lua_pushlightuserdata(lit.L, &lwin);
 	lua_pcall(lit.L, 1, 0, 0);*/
 
+	
 	lua_pop(lit.L, 1);
-    
 
-	l_init();
-
+	if (lit.can_init) {
+		lua_getglobal (lit.L, "_init");
+		if (lua_pcall(lit.L, 0, 1, 0) != 0) {
+			fprintf(stderr, "Problem calling _init: %s\n", lua_tostring(lit.L, -1));
+			exit(1);
+		}
+	}
 	// frame shit
 	const int FPS = 60;
 	const int frame_delay = 1000 / FPS;
