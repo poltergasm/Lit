@@ -11,9 +11,10 @@
 #include <lauxlib.h>
 #include <unistd.h>
 #include <time.h>
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_Image.h"
-#include "SDL2/SDL_ttf.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_Image.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "luajit.h"
 #include "utils.h"
 
@@ -78,6 +79,20 @@ typedef struct _texture {
 typedef struct _quad {
 	SDL_Rect rect;
 } l_quad_t;
+
+enum SND_TYPE { Chunk = 1, Music = 2 };
+
+typedef struct _sound {
+	enum SND_TYPE type;
+	int idx;
+} l_sound_t;
+
+int NUM_MUSIC = 1;
+int NUM_CHUNK = 1;
+int NUM_SND   = 1;
+l_sound_t sounds[100];
+Mix_Music *l_music[50] = {NULL};
+Mix_Chunk *l_chunk[50] = {NULL};
 
 int NUM_TEXTURES = 1;
 int NUM_QUADS = 1;

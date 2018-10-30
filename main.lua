@@ -1,37 +1,42 @@
-local player = {
-	img = image("assets/player_s.png"),
-	anim = {
-		idle 	= { quad(0, 0, 48, 48) },
-		walk 	= {
-			quad(48, 0, 48, 48),
-			quad(96, 0, 48, 48),
-			quad(144, 0, 48, 48)
-		}
-	},
-	state = "walk",
-	x = 200,
-	y = 200,
-	tick = 0,
-	frame = 0,
-	step = 7 -- animation speed
-}
+
+local text
+local rx,ry = 42, 45
+local selected = "song1"
+local sng1,sng2
 
 function _init()
-	set_title("Lit - Testing API")
+	text = "Not playing"
+	sng1 = snd("assets/audio/song1.mp3", true)
+	sng2 = snd("assets/audio/song2.mp3", true)
+	menuchange = snd("assets/audio/menu_move.wav")
+	menuselect = snd("assets/audio/menu_select.wav")
+	selected = sng1
 end
 
 function _update(dt)
-	player.tick=(player.tick+1)%player.step
-    if (player.tick == 0) then
-      player.frame = player.frame%#player.anim[player.state]+1
-      player.chunk = player.anim[player.state][player.frame]
-    end
+	if btnp(KEY_DOWN) then
+		rx,ry = 42, 95
+		selected = sng2
+		snd_play(menuchange)
+	end
+	if btnp(KEY_UP) then
+		rx,ry = 42, 45
+		selected = sng1
+		snd_play(menuchange)
+	end
+	if btnp(KEY_X) then
+		snd_play(selected)
+		snd_play(menuselect)
+	end
 end
 
 function _draw()
-	print("Wow it works!", 20, 20, COL_LIGHT_GREEN)
-	draw(player.img, player.x, player.y, player.chunk)
-	rect(50, 50, 40, 40, COL_ORANGE)
-	rect(75, 75, 40, 40, COL_LIGHT_GREEN, 128)
-	rect(100, 100, 40, 40, COL_BLUE_GRAY, 128)
+	set_bg(COL_BLACK)
+	rect(rx, ry, 142, 42, COL_LIGHT_GREEN)
+	print("Play song 1", 52, 52, COL_BLACK)
+	print("Play song 1", 50, 50, COL_WHITE)
+	
+	print("Play song 2", 52, 102, COL_BLACK)
+	print("Play song 2", 50, 100, COL_WHITE)
+
 end

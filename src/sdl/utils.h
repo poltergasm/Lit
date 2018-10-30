@@ -13,7 +13,7 @@ void l_init()
 		exit(3);
 	}
 
-	if (SDL_Init(SDL_INIT_VIDEO) == 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0) {
 		if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
 			fprintf(stderr, "Failed to initialise SDL_Image\n");
 			exit(4);
@@ -55,6 +55,8 @@ void l_init()
 		lgfx.current_color = col_black;
 		SDL_SetRenderDrawColor(lit.renderer, col_black.r, col_black.g, col_black.b, col_black.a);
 	}
+
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 }
 
 void l_render()

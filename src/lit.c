@@ -51,12 +51,18 @@ void register_functions()
 
 	lua_pushcfunction(lit.L, l_get_dimensions);
 	lua_setglobal(lit.L, "get_dimensions");
-	
+
 	lua_pushcfunction(lit.L, l_get_width);
 	lua_setglobal(lit.L, "get_width");
 
 	lua_pushcfunction(lit.L, l_get_height);
 	lua_setglobal(lit.L, "get_height");
+
+	lua_pushcfunction(lit.L, l_snd);
+	lua_setglobal(lit.L, "snd");
+
+	lua_pushcfunction(lit.L, l_snd_play);
+	lua_setglobal(lit.L, "snd_play");
 }
 
 uint8_t load_main()
@@ -129,6 +135,13 @@ uint8_t l_cleanup()
     TTF_CloseFont(lgfx.font);
     TTF_Quit();
     IMG_Quit();
+    Mix_CloseAudio();
+    for (i = 0; i < NUM_MUSIC; i++) {
+    	Mix_FreeMusic(l_music[i]);
+    }
+    for (i = 0; i < NUM_CHUNK; i++) {
+    	Mix_FreeChunk(l_chunk[i]);
+    }
     SDL_Quit();
     printf("Shutting down. All cleaned up.\n");
     return 0;

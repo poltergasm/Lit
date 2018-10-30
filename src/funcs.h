@@ -366,3 +366,59 @@ static int l_btnp(lua_State *L)
 
 	return 1;
 }
+
+static int l_snd(lua_State *L)
+{
+	const char *path = lua_tostring(L, 1);
+	char *fpath = get_full_path(path);
+	bool stream = lua_toboolean(L, 2);
+	if (stream) {
+		Mix_Music *mus = Mix_LoadMUS(fpath);
+		l_music[NUM_MUSIC] = mus;
+		l_sound_t newsnd = {
+			Music,
+			NUM_MUSIC
+		};
+		sounds[NUM_SND] = newsnd;
+		NUM_MUSIC++;
+		NUM_SND++;
+		lua_pushnumber(L, NUM_SND-1);
+	} else {
+		// chunk
+		Mix_Chunk *chunk = Mix_LoadWAV(fpath);
+		l_chunk[NUM_CHUNK] = chunk;
+		l_sound_t newsnd = {
+			Chunk,
+			NUM_CHUNK
+		};
+		sounds[NUM_SND] = newsnd;
+		NUM_CHUNK++;
+		NUM_SND++;
+		lua_pushnumber(L, NUM_SND-1);
+	}
+
+	free(fpath);
+	return 1;
+}
+
+static int l_snd_play(lua_State *L)
+{
+	int sid = lua_tonumber(L, 1);
+	if (sid == 0) {
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	l_sound_t getsnd = sounds[sid];
+	if (getsnd.type == Music) {
+		// play music
+		Mix_Music *mus = l_music[getsnd.idx];
+		Mix_PlayMusic(mus, 0);
+	} else {
+		// play chunk
+		Mix_Chunk *chunk = l_chunk[getsnd.idx];
+		Mix_PlayChannel(-1, chunk, 0);
+	}
+
+	return 0;
+}
