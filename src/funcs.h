@@ -227,12 +227,30 @@ static int l_image(lua_State *L)
 	return 1;
 }
 
+static int l_get_dimensions(lua_State *L)
+{
+	int ti = lua_tonumber(L, 1);
+	int w, h;
+	if (ti > 0) {
+		texture_t txt = l_textures[ti];
+		SDL_QueryTexture(txt.texture, NULL, NULL, &w, &h);
+		lua_pushnumber(L, w);
+		lua_pushnumber(L, h);
+		return 2;
+	} else {
+		lua_pushboolean(L, false);
+		return 1;
+	}
+}
+
 static int l_quad(lua_State *L)
 {
-	int xoff = lua_tonumber(L, 2);
-	int yoff = lua_tonumber(L, 3);
-	int h = lua_tonumber(L, 4);
-	int w = lua_tonumber(L, 5);
+	int xoff = lua_tonumber(L, 1);
+	int yoff = lua_tonumber(L, 2);
+	int h = lua_tonumber(L, 3);
+	int w = lua_tonumber(L, 4);
+	/*int sh = lua_tonumber(L, 5);
+	int sw = lua_tonumber(L, 6);*/
 
 	SDL_Rect rect;
 	rect.x = xoff;
@@ -269,8 +287,9 @@ void l_sdl_draw(texture_t *txt, int x, int y, int qn)
 		quad.y = quad_.rect.y;
 		quad.w = quad_.rect.w;
 		quad.h = quad_.rect.h;
+		rect.h = quad_.rect.h;
+		rect.w = quad_.rect.w;
 	}
-	SDL_QueryTexture(txt->texture, NULL, NULL, &rect.w, &rect.h);
 
 	if (txt->flipped) {
 		SDL_RenderCopyEx(lit.renderer, txt->texture, NULL, &rect, 0, NULL, SDL_FLIP_HORIZONTAL);
@@ -281,6 +300,7 @@ void l_sdl_draw(texture_t *txt, int x, int y, int qn)
 				exit(1);
 			}
 		} else {
+			SDL_QueryTexture(txt->texture, NULL, NULL, &rect.w, &rect.h);
 			if (SDL_RenderCopy(lit.renderer, txt->texture, NULL, &rect) != 0) {
 				fprintf(stderr, "Unable to render texture: %s\n", SDL_GetError());
 				exit(1);

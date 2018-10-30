@@ -49,6 +49,9 @@ void register_functions()
 	lua_pushcfunction(lit.L, l_btnp);
 	lua_setglobal(lit.L, "btnp");
 
+	lua_pushcfunction(lit.L, l_get_dimensions);
+	lua_setglobal(lit.L, "get_dimensions");
+	
 	lua_pushcfunction(lit.L, l_get_width);
 	lua_setglobal(lit.L, "get_width");
 
